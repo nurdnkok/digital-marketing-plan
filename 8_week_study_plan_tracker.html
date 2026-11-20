@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8-Week Digital Marketing Specialization Study Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .checkbox-wrapper input:checked + div {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .checkbox-wrapper input:checked + div svg {
+            display: block;
+        }
+
+        .task-card {
+            transition: all 0.2s ease;
+        }
+
+        .task-card.completed {
+            background-color: #f1f5f9;
+            opacity: 0.75;
+        }
+
+        .task-card.completed .task-title {
+            text-decoration: line-through;
+            color: #64748b;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: white;
+            }
+            .shadow-sm, .shadow-md, .shadow-lg {
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0;
+            }
+            .week-section {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <!-- Top Header & Controls -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 text-blue-600 text-xs font-bold uppercase tracking-wider mb-1">
+                        <i class="fas fa-graduation-cap"></i> Coursera Specialization Tracker
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Digital Marketing 8-Week Study Plan</h1>
+                    <p class="text-xs sm:text-sm text-slate-500">University of Illinois Urbana-Champaign • 7 Courses • 136 Listed Hours</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap items-center gap-2 no-print">
+                    <button onclick="downloadHTML()" class="inline-flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition cursor-pointer" title="Save this interactive tracker with your current progress">
+                        <i class="fas fa-download"></i> Save Interactive HTML
+                    </button>
+                    <button onclick="exportMarkdown()" class="inline-flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-medium rounded-lg shadow-sm transition cursor-pointer" title="Download as a Markdown (.md) document">
+                        <i class="fas fa-file-alt"></i> Export .MD
+                    </button>
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-medium rounded-lg shadow-sm transition cursor-pointer" title="Print or Save as PDF">
+                        <i class="fas fa-print"></i> Print / PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Overall Progress Bar -->
+            <div class="mt-4 pt-4 border-t border-slate-100">
+                <div class="flex items-center justify-between text-sm mb-1.5">
+                    <span class="font-semibold text-slate-700">Overall Specialization Progress</span>
+                    <div class="flex items-center gap-4">
+                        <span id="hours-counter" class="text-slate-500 text-xs sm:text-sm font-medium">0 / 136 Listed Hrs</span>
+                        <span id="progress-text" class="font-bold text-blue-600">0% (0/40 Days)</span>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                    <div id="overall-progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        
+        <!-- Filter & Reset Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm no-print">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider mr-1">Filter:</span>
+                <button onclick="setFilter('all')" id="filter-all" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-100 text-blue-700 transition cursor-pointer">All Days (40)</button>
+                <button onclick="setFilter('pending')" id="filter-pending" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer">Remaining</button>
+                <button onclick="setFilter('completed')" id="filter-completed" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer">Completed</button>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="expandCollapseAll(true)" class="text-xs font-medium text-slate-600 hover:text-blue-600 cursor-pointer">Expand All</button>
+                <span class="text-slate-300">|</span>
+                <button onclick="expandCollapseAll(false)" class="text-xs font-medium text-slate-600 hover:text-blue-600 cursor-pointer">Collapse All</button>
+                <span class="text-slate-300">|</span>
+                <button onclick="resetProgress()" class="text-xs font-medium text-red-600 hover:text-red-700 cursor-pointer">Reset Progress</button>
+            </div>
+        </div>
+
+        <!-- Study Tips Banner -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+            <i class="fas fa-lightbulb text-blue-600 mt-0.5 text-lg"></i>
+            <div class="text-xs sm:text-sm text-blue-900 space-y-1">
+                <p class="font-semibold">Pro Tips for Staying on Schedule:</p>
+                <ul class="list-disc list-inside text-blue-800 space-y-0.5">
+                    <li><strong>Speed Boost:</strong> Watching lectures at <strong>1.25x–1.5x speed</strong> turns 136 listed hours into ~90–100 real hours (~2 hours per study day).</li>
+                    <li><strong>Weekend Safety Valve:</strong> Each week is structured around 5 study days, leaving 2 buffer days for heavy modules in Weeks 2 & 3.</li>
+                    <li><strong>Auto-Save:</strong> Your checkmarks and personal notes automatically save in your browser. Click <strong>"Save Interactive HTML"</strong> anytime to download a backup file with your progress embedded.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Weeks Container -->
+        <div id="weeks-container" class="space-y-6">
+            <!-- Populated by JavaScript -->
+        </div>
+
+    </main>
+
+    <!-- Initial Embedded State (Updated dynamically when user downloads HTML) -->
+    <script id="embedded-state" type="application/json">{"checked":{},"notes":{}}</script>
+
+    <script>
+        const studyPlanData = [
+            {
+                week: 1,
+                title: "Week 1: Course 1 — The Digital Marketing Revolution (Part 1)",
+                courseInfo: "Course 1 of 7 • Target: ~17.5 listed hrs",
+                days: [
+                    { id: "w1d1", day: "Day 1", title: "Course 1 — Module 1 (Part 1)", desc: "Watch first half of Module 1 videos & complete readings", hours: 3.5 },
+                    { id: "w1d2", day: "Day 2", title: "Course 1 — Module 1 (Part 2)", desc: "Finish Module 1 videos & pass Module 1 quizzes", hours: 3.5 },
+                    { id: "w1d3", day: "Day 3", title: "Course 1 — Module 2 (Part 1)", desc: "Watch first half of Module 2 videos & review case studies", hours: 3.5 },
+                    { id: "w1d4", day: "Day 4", title: "Course 1 — Module 2 (Part 2)", desc: "Finish Module 2 videos & pass Module 2 quizzes", hours: 3.5 },
+                    { id: "w1d5", day: "Day 5", title: "Course 1 — Module 3 (Part 1)", desc: "Complete first half of Module 3 videos & readings", hours: 3.5 }
+                ]
+            },
+            {
+                week: 2,
+                title: "Week 2: Course 1 (Finish) & Course 2 (Start)",
+                courseInfo: "Courses 1 & 2 • Target: ~15.5 listed hrs",
+                days: [
+                    { id: "w2d1", day: "Day 1", title: "Course 1 — Module 3 (Part 2)", desc: "Finish Module 3 videos & pass Module 3 quizzes", hours: 3.5 },
+                    { id: "w2d2", day: "Day 2", title: "Course 1 — Module 4 (Part 1)", desc: "Watch Module 4 videos & prepare final assessment", hours: 3.0 },
+                    { id: "w2d3", day: "Day 3", title: "Course 1 — Module 4 (Part 2) & Completion", desc: "Pass final Course 1 quizzes/assignments to earn Course 1 certificate", hours: 2.0 },
+                    { id: "w2d4", day: "Day 4", title: "Course 2 — Module 1 (Part 1)", desc: "Start Marketing in a Digital World: Module 1 videos & readings", hours: 3.5 },
+                    { id: "w2d5", day: "Day 5", title: "Course 2 — Module 1 (Part 2)", desc: "Finish Module 1 videos, readings & pass Module 1 quiz", hours: 3.5 }
+                ]
+            },
+            {
+                week: 3,
+                title: "Week 3: Course 2 — Marketing in a Digital World (Finish)",
+                courseInfo: "Course 2 of 7 • Target: ~22 listed hrs (Heaviest Week)",
+                days: [
+                    { id: "w3d1", day: "Day 1", title: "Course 2 — Module 2 (Part 1)", desc: "Watch Module 2 videos & complete exercises", hours: 4.0 },
+                    { id: "w3d2", day: "Day 2", title: "Course 2 — Module 2 (Part 2)", desc: "Finish Module 2 readings & pass Module 2 quiz", hours: 3.5 },
+                    { id: "w3d3", day: "Day 3", title: "Course 2 — Module 3", desc: "Complete all Module 3 videos, readings & quiz (use weekend buffer if needed)", hours: 5.0 },
+                    { id: "w3d4", day: "Day 4", title: "Course 2 — Module 4 (Part 1)", desc: "Watch Module 4 videos & review case studies", hours: 4.5 },
+                    { id: "w3d5", day: "Day 5", title: "Course 2 — Module 4 (Part 2) & Completion", desc: "Submit final assignment/quiz to finish Course 2", hours: 5.0 }
+                ]
+            },
+            {
+                week: 4,
+                title: "Week 4: Course 3 — Customer Engagement Strategy",
+                courseInfo: "Course 3 of 7 • Target: ~13 listed hrs",
+                days: [
+                    { id: "w4d1", day: "Day 1", title: "Course 3 — Module 1", desc: "Complete Module 1 videos, readings & quiz", hours: 3.5 },
+                    { id: "w4d2", day: "Day 2", title: "Course 3 — Module 2", desc: "Complete Module 2 videos, readings & quiz", hours: 3.0 },
+                    { id: "w4d3", day: "Day 3", title: "Course 3 — Module 3", desc: "Complete Module 3 videos, readings & quiz", hours: 3.5 },
+                    { id: "w4d4", day: "Day 4", title: "Course 3 — Module 4 (Part 1)", desc: "Watch Module 4 videos & outline final assignment", hours: 1.5 },
+                    { id: "w4d5", day: "Day 5", title: "Course 3 — Module 4 (Part 2) & Completion", desc: "Pass final quiz/assignment to complete Course 3", hours: 1.5 }
+                ]
+            },
+            {
+                week: 5,
+                title: "Week 5: Course 4 — Platforms, Data, and Technologies",
+                courseInfo: "Course 4 of 7 • Target: ~12 listed hrs",
+                days: [
+                    { id: "w5d1", day: "Day 1", title: "Course 4 — Module 1", desc: "Complete Module 1 videos, readings & quiz", hours: 3.0 },
+                    { id: "w5d2", day: "Day 2", title: "Course 4 — Module 2", desc: "Complete Module 2 videos, readings & quiz", hours: 3.0 },
+                    { id: "w5d3", day: "Day 3", title: "Course 4 — Module 3", desc: "Complete Module 3 videos, readings & quiz", hours: 3.0 },
+                    { id: "w5d4", day: "Day 4", title: "Course 4 — Module 4 (Part 1)", desc: "Watch Module 4 videos & complete readings", hours: 1.5 },
+                    { id: "w5d5", day: "Day 5", title: "Course 4 — Module 4 (Part 2) & Completion", desc: "Pass final quiz/assignment to complete Course 4", hours: 1.5 }
+                ]
+            },
+            {
+                week: 6,
+                title: "Week 6: Course 5 — Navigating Emerging Media and AI",
+                courseInfo: "Course 5 of 7 • Target: ~19 listed hrs",
+                days: [
+                    { id: "w6d1", day: "Day 1", title: "Course 5 — Module 1", desc: "Complete Module 1 videos, readings & quiz", hours: 4.0 },
+                    { id: "w6d2", day: "Day 2", title: "Course 5 — Module 2", desc: "Complete Module 2 videos, readings & quiz", hours: 4.0 },
+                    { id: "w6d3", day: "Day 3", title: "Course 5 — Module 3", desc: "Complete Module 3 videos, readings & quiz", hours: 4.0 },
+                    { id: "w6d4", day: "Day 4", title: "Course 5 — Module 4 (Part 1)", desc: "Watch Module 4 videos & draft final assignment", hours: 3.5 },
+                    { id: "w6d5", day: "Day 5", title: "Course 5 — Module 4 (Part 2) & Completion", desc: "Submit final assignment/quiz to complete Course 5", hours: 3.5 }
+                ]
+            },
+            {
+                week: 7,
+                title: "Week 7: Course 6 — Executing Strategies",
+                courseInfo: "Course 6 of 7 • Target: ~19 listed hrs",
+                days: [
+                    { id: "w7d1", day: "Day 1", title: "Course 6 — Module 1", desc: "Complete Module 1 videos, readings & quiz", hours: 4.0 },
+                    { id: "w7d2", day: "Day 2", title: "Course 6 — Module 2", desc: "Complete Module 2 videos, readings & quiz", hours: 4.0 },
+                    { id: "w7d3", day: "Day 3", title: "Course 6 — Module 3", desc: "Complete Module 3 videos, readings & quiz", hours: 4.0 },
+                    { id: "w7d4", day: "Day 4", title: "Course 6 — Module 4 (Part 1)", desc: "Watch Module 4 videos & prepare final strategy deliverable", hours: 3.5 },
+                    { id: "w7d5", day: "Day 5", title: "Course 6 — Module 4 (Part 2) & Completion", desc: "Submit final assignment/quiz to complete Course 6", hours: 3.5 }
+                ]
+            },
+            {
+                week: 8,
+                title: "Week 8: Course 7 — Digital Marketing Capstone",
+                courseInfo: "Course 7 of 7 • Target: ~18 listed hrs",
+                days: [
+                    { id: "w8d1", day: "Day 1", title: "Capstone — Project Brief & Research", desc: "Review capstone prompt, rubric, and background case files", hours: 3.5 },
+                    { id: "w8d2", day: "Day 2", title: "Capstone — Situation & Audience Analysis", desc: "Draft situation analysis, target segments, and objectives", hours: 4.0 },
+                    { id: "w8d3", day: "Day 3", title: "Capstone — Channel Strategy & Tactics", desc: "Build digital channel mix, content plan, and KPIs", hours: 4.0 },
+                    { id: "w8d4", day: "Day 4", title: "Capstone — Final Polish & Early Submission", desc: "Review against grading rubric and submit project early for peer grading", hours: 3.5 },
+                    { id: "w8d5", day: "Day 5", title: "Capstone — Peer Reviews & Specialization Certificate", desc: "Complete required peer evaluations of classmates' submissions", hours: 3.0 }
+                ]
+            }
+        ];
+
+        const STORAGE_KEY = 'coursera_dm_8week_plan_v1';
+        let appState = { checked: {}, notes: {}, collapsed: {} };
+        let currentFilter = 'all';
+
+        function loadState() {
+            // 1. Check embedded state first (in case opened from a saved HTML file)
+            try {
+                const embeddedEl = document.getElementById('embedded-state');
+                if (embeddedEl && embeddedEl.textContent.trim()) {
+                    const parsedEmbedded = JSON.parse(embeddedEl.textContent);
+                    if (parsedEmbedded && (Object.keys(parsedEmbedded.checked || {}).length > 0 || Object.keys(parsedEmbedded.notes || {}).length > 0)) {
+                        appState = { checked: {}, notes: {}, collapsed: {}, ...parsedEmbedded };
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not parse embedded state', e);
+            }
+
+            // 2. Merge/override with localStorage if available
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsedLocal = JSON.parse(saved);
+                    appState = {
+                        checked: { ...appState.checked, ...(parsedLocal.checked || {}) },
+                        notes: { ...appState.notes, ...(parsedLocal.notes || {}) },
+                        collapsed: { ...appState.collapsed, ...(parsedLocal.collapsed || {}) }
+                    };
+                }
+            } catch (e) {
+                console.warn('localStorage unavailable', e);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.warn('Could not save to localStorage', e);
+            }
+            const embeddedEl = document.getElementById('embedded-state');
+            if (embeddedEl) {
+                embeddedEl.textContent = JSON.stringify({ checked: appState.checked, notes: appState.notes });
+            }
+        }
+
+        function toggleTask(id) {
+            appState.checked[id] = !appState.checked[id];
+            saveState();
+            renderWeeks();
+            updateOverallProgress();
+        }
+
+        function updateNote(id, value) {
+            if (value.trim() === '') {
+                delete appState.notes[id];
+            } else {
+                appState.notes[id] = value;
+            }
+            saveState();
+        }
+
+        function toggleWeekCollapse(weekNum) {
+            appState.collapsed[weekNum] = !appState.collapsed[weekNum];
+            saveState();
+            renderWeeks();
+        }
+
+        function expandCollapseAll(expand) {
+            studyPlanData.forEach(w => {
+                appState.collapsed[w.week] = !expand;
+            });
+            saveState();
+            renderWeeks();
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-100', 'text-blue-700');
+                btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+            });
+            const activeBtn = document.getElementById(`filter-${filter}`);
+            activeBtn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+            activeBtn.classList.add('bg-blue-100', 'text-blue-700');
+            renderWeeks();
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to clear all checkmarks and notes? This cannot be undone.')) {
+                appState = { checked: {}, notes: {}, collapsed: {} };
+                saveState();
+                renderWeeks();
+                updateOverallProgress();
+            }
+        }
+
+        function updateOverallProgress() {
+            let totalDays = 0;
+            let completedDays = 0;
+            let totalHours = 0;
+            let completedHours = 0;
+
+            studyPlanData.forEach(week => {
+                week.days.forEach(day => {
+                    totalDays++;
+                    totalHours += day.hours;
+                    if (appState.checked[day.id]) {
+                        completedDays++;
+                        completedHours += day.hours;
+                    }
+                });
+            });
+
+            const pct = totalDays === 0 ? 0 : Math.round((completedDays / totalDays) * 100);
+            document.getElementById('overall-progress-bar').style.width = `${pct}%`;
+            document.getElementById('progress-text').textContent = `${pct}% (${completedDays}/${totalDays} Days)`;
+            document.getElementById('hours-counter').textContent = `${completedHours.toFixed(1)} / ${totalHours} Listed Hrs`;
+        }
+
+        function renderWeeks() {
+            const container = document.getElementById('weeks-container');
+            container.innerHTML = '';
+
+            studyPlanData.forEach(week => {
+                const weekCompletedCount = week.days.filter(d => appState.checked[d.id]).length;
+                const weekTotalCount = week.days.length;
+                const weekPct = Math.round((weekCompletedCount / weekTotalCount) * 100);
+                const isCollapsed = !!appState.collapsed[week.week];
+
+                const filteredDays = week.days.filter(d => {
+                    if (currentFilter === 'completed') return !!appState.checked[d.id];
+                    if (currentFilter === 'pending') return !appState.checked[d.id];
+                    return true;
+                });
+
+                if (filteredDays.length === 0 && currentFilter !== 'all') {
+                    return;
+                }
+
+                const weekEl = document.createElement('section');
+                weekEl.className = 'week-section bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden';
+
+                const headerHTML = `
+                    <div onclick="toggleWeekCollapse(${week.week})" class="p-4 sm:px-6 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer hover:bg-slate-100/80 transition select-none">
+                        <div class="flex items-start sm:items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg ${weekPct === 100 ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'} flex items-center justify-center font-bold text-sm shrink-0 mt-0.5 sm:mt-0">
+                                ${weekPct === 100 ? '<i class="fas fa-check"></i>' : 'W' + week.week}
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-slate-900 text-base sm:text-lg">${week.title}</h2>
+                                <p class="text-xs text-slate-500">${week.courseInfo}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 self-end sm:self-center">
+                            <div class="text-right">
+                                <span class="text-xs font-semibold ${weekPct === 100 ? 'text-emerald-600' : 'text-slate-600'}">${weekCompletedCount}/${weekTotalCount} Done</span>
+                                <div class="w-24 bg-slate-200 rounded-full h-1.5 mt-1">
+                                    <div class="${weekPct === 100 ? 'bg-emerald-500' : 'bg-blue-600'} h-1.5 rounded-full transition-all" style="width: ${weekPct}%"></div>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-slate-400 text-sm ml-1 no-print"></i>
+                        </div>
+                    </div>
+                `;
+
+                let daysHTML = `<div class="${isCollapsed ? 'hidden' : 'divide-y divide-slate-100'}">`;
+                
+                filteredDays.forEach(day => {
+                    const isChecked = !!appState.checked[day.id];
+                    const noteVal = appState.notes[day.id] || '';
+                    
+                    daysHTML += `
+                        <div class="task-card p-4 sm:px-6 flex flex-col gap-3 ${isChecked ? 'completed' : 'hover:bg-slate-50/60'}">
+                            <div class="flex items-start gap-3.5">
+                                <label class="checkbox-wrapper relative flex items-center cursor-pointer mt-0.5 select-none">
+                                    <input type="checkbox" class="sr-only" ${isChecked ? 'checked' : ''} onchange="toggleTask('${day.id}')">
+                                    <div class="w-5 h-5 border-2 border-slate-300 rounded-md bg-white flex items-center justify-center transition">
+                                        <svg class="w-3.5 h-3.5 text-white hidden pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                </label>
+                                
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-0.5 text-xs font-bold rounded bg-slate-200/70 text-slate-700">${day.day}</span>
+                                            <h3 class="task-title font-semibold text-slate-900 text-sm sm:text-base">${day.title}</h3>
+                                        </div>
+                                        <span class="inline-flex items-center gap-1 text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                                            <i class="far fa-clock text-slate-400"></i> ~${day.hours} listed hrs
+                                        </span>
+                                    </div>
+                                    <p class="text-xs sm:text-sm text-slate-600 mt-1">${day.desc}</p>
+                                    
+                                    <!-- Optional Personal Note Input -->
+                                    <div class="mt-2.5">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Add a quick note, date target, or key takeaway..." 
+                                            value="${noteVal.replace(/"/g, '&quot;')}"
+                                            oninput="updateNote('${day.id}', this.value)"
+                                            class="w-full text-xs bg-transparent border-b border-dashed border-slate-300 focus:border-blue-500 focus:outline-none py-1 text-slate-700 placeholder-slate-400 transition"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                daysHTML += `</div>`;
+                weekEl.innerHTML = headerHTML + daysHTML;
+                container.appendChild(weekEl);
+            });
+        }
+
+        function downloadHTML() {
+            // Ensure embedded-state script tag has latest data before serializing
+            saveState();
+            const docClone = document.documentElement.cloneNode(true);
+            // Clean up dynamically generated DOM inside weeks-container so it initializes cleanly when reopened
+            const clonedContainer = docClone.querySelector('#weeks-container');
+            if (clonedContainer) clonedContainer.innerHTML = '';
+            
+            const htmlContent = '<!DOCTYPE html>\n' + docClone.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Digital_Marketing_8Week_Study_Plan.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportMarkdown() {
+            let md = `# 8-Week Digital Marketing Specialization Study Plan\n`;
+            md += `**Coursera / University of Illinois Urbana-Champaign** • 7 Courses • 136 Listed Hours\n\n`;
+
+            studyPlanData.forEach(week => {
+                md += `## ${week.title}\n`;
+                md += `*${week.courseInfo}*\n\n`;
+                week.days.forEach(day => {
+                    const check = appState.checked[day.id] ? 'x' : ' ';
+                    const note = appState.notes[day.id] ? ` — **Note:** ${appState.notes[day.id]}` : '';
+                    md += `- [${check}] **${day.day}: ${day.title}** (~${day.hours} hrs) — ${day.desc}${note}\n`;
+                });
+                md += `\n`;
+            });
+
+            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Digital_Marketing_8Week_Study_Plan.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize
+        loadState();
+        renderWeeks();
+        updateOverallProgress();
+    </script>
+</body>
+</html>
